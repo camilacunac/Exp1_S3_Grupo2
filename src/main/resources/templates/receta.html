@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title th:text="${receta.nombre}">Receta</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 th:text="${receta.nombre}">Nombre de la receta</h1>
+      <img
+        th:src="${receta.imagenUrl}"
+        class="img-fluid mb-4"
+        alt="Imagen de receta"
+      />
+      <p>
+        <strong>Categoría:</strong>
+        <span th:text="${receta.categoria}">Categoria</span>
+      </p>
+      <p>
+        <strong>Valoración:</strong>
+        <span th:text="${receta.valoracion}">Valoración</span>
+      </p>
+      <p><strong>Descripción:</strong></p>
+      <p th:text="${receta.descripcion}">Descripción de la receta</p>
+    </div>
+  </body>
+</html>

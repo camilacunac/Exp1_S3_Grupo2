@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Iniciar Sesión</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header text-center">
+              <h2>Iniciar Sesión</h2>
+            </div>
+            <div class="card-body">
+              <form id="loginForm">
+                <div
+                  id="error-message"
+                  class="alert alert-danger"
+                  role="alert"
+                  style="display: none"
+                >
+                  Usuario o contraseña incorrectos.
+                </div>
+                <div class="form-group">
+                  <label for="correo">Correo Electrónico:</label>
+                  <input
+                    type="email"
+                    id="correo"
+                    name="correo"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="contrasena">Contraseña:</label>
+                  <input
+                    type="password"
+                    id="contrasena"
+                    name="contrasena"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  onclick="login()"
+                >
+                  Ingresar
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function login() {
+        const correo = document.getElementById("correo").value;
+        const contrasena = document.getElementById("contrasena").value;
+
+        // Realiza la solicitud POST a /usuarios/login
+        fetch("/usuarios/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ correo: correo, contrasena: contrasena }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Credenciales incorrectas");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.state === "success") {
+              // Guardar el token JWT en localStorage
+              localStorage.setItem("token", data.res);
+              alert("Inicio de sesión exitoso");
+              // Redirigir a la página de inicio
+              window.location.href = "/inicio";
+            } else {
+              throw new Error("Credenciales incorrectas");
+            }
+          })
+          .catch((error) => {
+            console.log({ error });
+            document.getElementById("error-message").style.display = "block";
+          });
+      }
+    </script>
+  </body>
+</html>
