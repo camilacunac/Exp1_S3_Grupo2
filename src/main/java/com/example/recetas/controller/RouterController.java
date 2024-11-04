@@ -1,5 +1,7 @@
 package com.example.recetas.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.recetas.model.LoginDTO;
 import com.example.recetas.model.Receta;
 import com.example.recetas.model.Usuario;
 import org.springframework.ui.Model;
@@ -20,7 +23,8 @@ public class RouterController {
     }
 
     @GetMapping("/login")
-    public String mostrarFormularioLogin() {
+    public String mostrarFormularioLogin(Model model) {
+        model.addAttribute("loginDTO", new LoginDTO());
         return "login";
     }
 
@@ -61,8 +65,13 @@ public class RouterController {
         return "receta"; // El nombre del template Thymeleaf
     }
 
-    @GetMapping("buscar")
-    public String mostrarBusqueda() {
-        return "busqueda";
+    @GetMapping("/buscar")
+    public String mostrarBusqueda(Model model) {
+        // Añadimos los atributos del modelo si necesitas que tengan valores por defecto
+        model.addAttribute("nombre", "");
+        model.addAttribute("categoria", "");
+        model.addAttribute("valoracionMinima", "");
+        model.addAttribute("recetas", List.of()); // Lista vacía para el inicio
+        return "busqueda"; // Renderiza 'busqueda.html'
     }
 }

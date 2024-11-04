@@ -1,6 +1,9 @@
 package com.example.recetas.controller;
 
 import com.example.recetas.model.Receta;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/recetas")
 public class RecetaController {
 
@@ -48,19 +51,33 @@ public class RecetaController {
                 return recetas;
         }
 
-        // Endpoint para buscar recetas por propiedades
         @GetMapping("/buscar")
-        public List<Receta> buscarRecetas(
+        public String buscarRecetas(
                         @RequestParam(required = false) String nombre,
                         @RequestParam(required = false) String categoria,
-                        @RequestParam(required = false) Double valoracionMinima) {
-                return recetas.stream()
-                                .filter(receta -> (nombre == null
-                                                || receta.getNombre().toLowerCase().contains(nombre.toLowerCase())) &&
-                                                (categoria == null || receta.getCategoria().equalsIgnoreCase(categoria))
-                                                &&
-                                                (valoracionMinima == null
-                                                                || receta.getValoracion() >= valoracionMinima))
+                        @RequestParam(required = false) Double valoracionMinima,
+                        Model model) {
+
+                // Filtrar las recetas según los parámetros no vacíos
+                List<Receta> recetasFiltradas = recetas.stream()
+                                .filter(receta -> (nombre != null && !nombre.isEmpty()
+                                                ? receta.getNombre().toLowerCase().contains(nombre.toLowerCase())
+                                                : true))
+                                .filter(receta -> (categoria != null && !categoria.isEmpty()
+                                                ? receta.getCategoria().equalsIgnoreCase(categoria)
+                                                : true))
+                                .filter(receta -> (valoracionMinima != null
+                                                ? receta.getValoracion() >= valoracionMinima
+                                                : true))
                                 .collect(Collectors.toList());
+
+                // Agregar los filtros y los resultados al modelo para Thymeleaf
+                model.addAttribute("nombre", nombre);
+                model.addAttribute("categoria", categoria);
+                model.addAttribute("valoracionMinima", valoracionMinima);
+                model.addAttribute("recetas", recetasFiltradas);
+
+                return "busqueda"; // Renderiza la plantilla de búsqueda con los resultados
         }
+
 }

@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Desactivar CSRF temporalmente
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/", "/usuarios/login", "/error", "/registro", "/usuarios/registro",
-                                "/inicio", "/buscar-recetas")
+                                "/inicio", "/buscar-recetas", "/buscar", "/recetas/buscar")
                         .permitAll() // Permitir acceso sin autenticación a estas rutas
                         .anyRequest().authenticated()) // Requerir autenticación para todas las demás rutas
                 .sessionManagement(session -> session

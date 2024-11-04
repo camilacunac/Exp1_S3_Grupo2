@@ -71,7 +71,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
 
         if (jwt != null && authorizationHeader == null) {
             try {
-                System.out.println("CONCHETUMARE");
                 username = jwtTokenUtil.extractUsername(jwt);
             } catch (ExpiredJwtException e) {
                 System.out.println(e);

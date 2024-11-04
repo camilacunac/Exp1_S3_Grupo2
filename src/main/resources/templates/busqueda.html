@@ -15,7 +15,11 @@
       </header>
 
       <!-- Formulario de Búsqueda de Recetas -->
-      <form id="searchForm" class="form-inline justify-content-center">
+      <form
+        th:action="@{/recetas/buscar}"
+        method="get"
+        class="form-inline justify-content-center"
+      >
         <div class="form-group mx-2">
           <input
             type="text"
@@ -23,6 +27,7 @@
             name="nombre"
             class="form-control"
             placeholder="Nombre de la receta"
+            th:value="${nombre}"
           />
         </div>
         <div class="form-group mx-2">
@@ -32,6 +37,7 @@
             name="categoria"
             class="form-control"
             placeholder="Categoría"
+            th:value="${categoria}"
           />
         </div>
         <div class="form-group mx-2">
@@ -42,79 +48,52 @@
             class="form-control"
             step="0.1"
             placeholder="Valoración mínima"
+            th:value="${valoracionMinima}"
           />
         </div>
-        <button
-          type="button"
-          class="btn btn-primary mx-2"
-          onclick="buscarRecetas()"
-        >
-          Buscar
-        </button>
+        <button type="submit" class="btn btn-primary mx-2">Buscar</button>
       </form>
 
       <!-- Contenedor de Resultados -->
-      <div id="resultados" class="mt-4"></div>
+      <div id="resultados" class="mt-4">
+        <h3 th:if="${not #lists.isEmpty(recetas)}">Resultados de Búsqueda</h3>
+        <div class="alert alert-warning" th:if="${#lists.isEmpty(recetas)}">
+          No se encontraron recetas.
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-4" th:each="receta : ${recetas}">
+            <div class="card">
+              <img
+                th:src="${receta.imagenUrl}"
+                class="card-img-top"
+                alt="Imagen de receta"
+              />
+              <div class="card-body">
+                <h5 class="card-title" th:text="${receta.nombre}">
+                  Nombre de la receta
+                </h5>
+                <p class="card-text" th:text="${receta.descripcion}">
+                  Descripción de la receta
+                </p>
+                <p>
+                  <strong>Categoría:</strong>
+                  <span th:text="${receta.categoria}">Categoria</span>
+                </p>
+                <p>
+                  <strong>Valoración:</strong>
+                  <span th:text="${receta.valoracion}">Valoración</span>
+                </p>
+                <a
+                  th:href="@{/receta/{id}(id=${receta.id})}"
+                  class="btn btn-info"
+                  >Ver más</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <script>
-      function buscarRecetas() {
-        // Obtener valores de los campos de entrada
-        const nombre = document.getElementById("nombre").value;
-        const categoria = document.getElementById("categoria").value;
-        const valoracionMinima =
-          document.getElementById("valoracionMinima").value;
-
-        // Construir la URL con los parámetros de búsqueda
-        const url = new URL("/recetas/buscar", window.location.origin);
-        const params = { nombre, categoria, valoracionMinima };
-        Object.keys(params).forEach((key) => {
-          if (params[key]) url.searchParams.append(key, params[key]);
-        });
-
-        // Hacer la solicitud `fetch` al backend
-        fetch(url)
-          .then((response) => {
-            if (!response.ok) throw new Error("Error en la búsqueda");
-            return response.json();
-          })
-          .then((data) => mostrarResultados(data))
-          .catch((error) => {
-            console.error("Error:", error);
-            document.getElementById(
-              "resultados"
-            ).innerHTML = `<div class="alert alert-danger">Error en la búsqueda</div>`;
-          });
-      }
-
-      function mostrarResultados(recetas) {
-        const resultadosDiv = document.getElementById("resultados");
-        if (recetas.length === 0) {
-          resultadosDiv.innerHTML = `<div class="alert alert-warning">No se encontraron recetas.</div>`;
-          return;
-        }
-
-        // Renderizar las recetas encontradas
-        let html = `<h3>Resultados de Búsqueda</h3><div class="row">`;
-        recetas.forEach((receta) => {
-          html += `
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img src="${receta.imagenUrl}" class="card-img-top" alt="Imagen de receta">
-                        <div class="card-body">
-                            <h5 class="card-title">${receta.nombre}</h5>
-                            <p class="card-text">${receta.descripcion}</p>
-                            <p><strong>Categoría:</strong> ${receta.categoria}</p>
-                            <p><strong>Valoración:</strong> ${receta.valoracion}</p>
-                            <a href="/receta/${receta.id}" class="btn btn-info">Ver más</a>
-                        </div>
-                    </div>
-                </div>`;
-        });
-        html += `</div>`;
-        resultadosDiv.innerHTML = html;
-      }
-    </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

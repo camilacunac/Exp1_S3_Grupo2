@@ -10,12 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
@@ -41,29 +42,43 @@ public class UsuarioController {
     // }
 
     @PostMapping("/registro")
-    public ResponseEntity<Response> crearUsuario(@RequestBody Usuario usuario) {
+    public String crearUsuario(@ModelAttribute("usuario") Usuario usuario, Model model) {
         try {
-            return usuarioService.crearUsuario(usuario);
+            ResponseEntity<Response> response = usuarioService.crearUsuario(usuario);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return "redirect:/login"; // Redirige a la página de login si el registro es exitoso
+            } else {
+                model.addAttribute("error", true); // Añade el error al modelo para mostrarlo en la vista
+                return "registro"; // Devuelve la vista de registro con mensaje de error
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new Response("error", null, "Error interno al crear el usuario"));
+            model.addAttribute("error", true);
+            return "registro";
         }
     }
 
     // Inicio de sesión (Login)
     @PostMapping("/login")
-    public ResponseEntity<Response> login(@RequestBody LoginDTO loginRequest, HttpServletResponse response) {
+    public String login(@ModelAttribute LoginDTO loginRequest, Model model, HttpServletResponse response) {
         try {
-            return usuarioService.login(loginRequest.getCorreo(), loginRequest.getContrasena(), response);
+            ResponseEntity<Response> loginResponse = usuarioService.login(loginRequest.getCorreo(),
+                    loginRequest.getContrasena(), response);
+            if (loginResponse.getStatusCode() == HttpStatus.OK) {
+                return "redirect:/inicio"; // Redirige a la página de inicio en caso de éxito
+            } else {
+                model.addAttribute("error", true); // Agrega un atributo para mostrar el mensaje de error
+                return "login"; // Vuelve a mostrar el formulario de inicio de sesión con el mensaje de error
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(new Response("error", null, "Error interno durante el inicio de sesión"));
+            model.addAttribute("error", true);
+            return "login";
         }
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response) {
+    public String logout(HttpServletResponse response) {
         usuarioService.logout(response);
-        return ResponseEntity.status(HttpStatus.OK).body("Logout exitoso");
+        return "redirect:/inicio";
     }
 
     // Actualizar el rol de un usuario

@@ -16,13 +16,14 @@
               <h2>Iniciar Sesión</h2>
             </div>
             <div class="card-body">
-              <form id="loginForm">
-                <div
-                  id="error-message"
-                  class="alert alert-danger"
-                  role="alert"
-                  style="display: none"
-                >
+              <!-- Formulario de inicio de sesión -->
+              <form
+                th:action="@{/usuarios/login}"
+                method="post"
+                th:object="${loginDTO}"
+              >
+                <!-- Mensaje de error -->
+                <div th:if="${error}" class="alert alert-danger" role="alert">
                   Usuario o contraseña incorrectos.
                 </div>
                 <div class="form-group">
@@ -32,6 +33,7 @@
                     id="correo"
                     name="correo"
                     class="form-control"
+                    th:field="*{correo}"
                     required
                   />
                 </div>
@@ -42,14 +44,11 @@
                     id="contrasena"
                     name="contrasena"
                     class="form-control"
+                    th:field="*{contrasena}"
                     required
                   />
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-block"
-                  onclick="login()"
-                >
+                <button type="submit" class="btn btn-primary btn-block">
                   Ingresar
                 </button>
               </form>
@@ -58,42 +57,5 @@
         </div>
       </div>
     </div>
-
-    <script>
-      function login() {
-        const correo = document.getElementById("correo").value;
-        const contrasena = document.getElementById("contrasena").value;
-
-        // Realiza la solicitud POST a /usuarios/login
-        fetch("/usuarios/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ correo: correo, contrasena: contrasena }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Credenciales incorrectas");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            if (data.state === "success") {
-              // Guardar el token JWT en localStorage
-              localStorage.setItem("token", data.res);
-              alert("Inicio de sesión exitoso");
-              // Redirigir a la página de inicio
-              window.location.href = "/inicio";
-            } else {
-              throw new Error("Credenciales incorrectas");
-            }
-          })
-          .catch((error) => {
-            console.log({ error });
-            document.getElementById("error-message").style.display = "block";
-          });
-      }
-    </script>
   </body>
 </html>
